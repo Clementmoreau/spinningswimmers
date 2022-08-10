@@ -1,6 +1,6 @@
 % Emergent three-dimensional dynamics of rapidly spinning microswimmers in shear flow. Part I: Achiral bodies
 
-% Movie for translational dynamics, bacterial limit
+% Basic movie code.
 
 close all
 
@@ -90,19 +90,27 @@ x_bar = sol_reduced(:,4);
 y_bar = sol_reduced(:,5);
 z_bar = sol_reduced(:,6);
 
-%% Post-processing
+%% Making the movie.
 
-%v1 = VideoWriter('movie_3D_1.mp4','MPEG-4');
-%v1.Quality = 50;
-%open(v1);
+% Do we want to save the movie ?
+savemov = 0;
 
+if savemov
+    v1 = VideoWriter('movie_3D_1.mp4','MPEG-4');
+    v1.Quality = 50;
+    open(v1);
+end
+
+% Setup the figure
 figure(1);clf;
 set(gcf, 'Position',  [100, 100, 1500, 4000])
+
+% Interval between frames.
 tick = 3;
-tick2 = 1;
 
 a = 1e-1*(max(x_full)-min(x_full)); %swimmer size
 
+% Axis.
 xmin = min(x_full)-2*a;
 xmax = max(x_full)+2*a;
 ymin = min(y_full)-2*a;
@@ -111,18 +119,41 @@ zmin = min(z_full)-2*a;
 zmax = max(z_full)+2*a;
 
 colormap(othercolor('BuDRd_18'))
+
+% Aspect ratio.
 r = sqrt((1-B)/(1+B));
 
 for i = 1:tick:length(tps)
     
-    plot3(x_bar(1:tick2:i),y_bar(1:tick2:i),z_bar(1:tick2:i),'r','LineWidth',3)
-    view(60,25)
-    hold on
-    % plot the trajectory
-    plot3(x_full(1:tick2:i),y_full(1:tick2:i),z_full(1:tick2:i),'k','LineWidth',0.5)
-    axis equal
-    axis([xmin xmax ymin ymax zmin zmax])
+    % Plot the average trajectory.
+    plot3(x_bar(1:i),y_bar(1:i),z_bar(1:i),'r','LineWidth',3)
     
+    hold on
+    % plot the full trajectory.
+    plot3(x_full(1:i),y_full(1:i),z_full(1:i),'k','LineWidth',0.5)
+
+    % Show the swimmer.
+    
+    % First define a sphere.
+    [sx0,sy0,sz0]=sphere(50);
+    % Rescale to make it a spheroid.
+    sx=min(r,1)*sx0;sy=min(r,1)*sy0;sz=min(1/r,1)*sz0;
+    % Plot it and colour it so the spinning will be visible.
+    s = surf(a*sx+x_full(i),a*sy+y_full(i),a*sz+z_full(i),3*sz0+cos(6*sx0)+cos(4*sy0),'LineStyle','none','FaceLighting','gouraud');
+    % Finally, rotate it to the appropriate orientation.
+    o = [x_full(i),y_full(i),z_full(i)];
+    % First, azimuthal angle phi.
+    rotate(s,[0 0 1],rad2deg(phi_full(i)),o)
+    % Then, polar angle theta.
+    rotate(s,[cos(phi_full(i)),sin(phi_full(i)),0],rad2deg(theta_full(i)),o)
+    % And finally proper rotation psi.
+    rotate(s,[sin(theta_full(i))*sin(phi_full(i)),-sin(theta_full(i))*cos(phi_full(i)),cos(theta_full(i))],rad2deg(psi_full(i)),o)
+
+    % some graphical parameters
+    axis equal
+    set(gcf,'color','w');
+    axis([xmin xmax ymin ymax zmin zmax])
+    view(60,25)
     xlabel('x','interpreter','latex')
     ylabel('y','interpreter','latex')
     zlabel('z','interpreter','latex')
@@ -130,22 +161,14 @@ for i = 1:tick:length(tps)
     grid on
     set(gca,'FontSize',20)
     set(gca,'TickLabelInterpreter','latex')
-
-    % show the swimmer
-
-    [sx0,sy0,sz0]=sphere(50);
-    sx=min(r,1)*sx0;sy=min(r,1)*sy0;sz=min(1/r,1)*sz0;%deform
-    s = surf(a*sx+x_full(i),a*sy+y_full(i),a*sz+z_full(i),3*sz0+cos(6*sx0)+cos(4*sy0),'LineStyle','none','FaceLighting','gouraud');
-    o = [x_full(i),y_full(i),z_full(i)];
-    rotate(s,[0 0 1],rad2deg(phi_full(i)),o)
-    rotate(s,[cos(phi_full(i)),sin(phi_full(i)),0],rad2deg(theta_full(i)),o)
-    rotate(s,[sin(theta_full(i))*sin(phi_full(i)),-sin(theta_full(i))*cos(phi_full(i)),cos(theta_full(i))],rad2deg(psi_full(i)),o)
     drawnow
-    set(gcf,'color','w');
-    %frame = getframe(gcf);
-    %writeVideo(v1,frame);
+
+    if savemov
+        frame = getframe(gcf);
+        writeVideo(v1,frame);
+    end
+
     hold off
-    
 end
 
 
