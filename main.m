@@ -9,12 +9,12 @@ close all;
 % G = gamma, the shear rate of the flow.
 G = 1;
 % B = Bretherton constant.
-B = 0.99;
+B = 0.9;
 
 % W_par is the intrinsic spin of the swimmer about its axis of helicoidal symmetry.
 W_par = 1;
 % W_perp is the other direction of spin (perpendicular to the axis of helicoidal symmetry).
-W_perp = 100;
+W_perp = 10;
 
 % Swimming velocity along axis of helicoidal symmetry, e_hat_1.
 V1 = 1;
@@ -35,8 +35,8 @@ V_hat = (V1 + w*V2) / lambda;
 options = odeset('RelTol', 1e-11, 'AbsTol', 1e-11);
 
 % Generate specific IC for theta, phi, and psi.
-init_theta = pi/2;
-init_phi = pi/2;
+init_theta = pi/10;
+init_phi = -0.1;
 init_psi = pi/2;
 
 % Initial condition for swimmer position.
@@ -53,7 +53,7 @@ init_reduced = [init_alpha_bar; init_phi_bar; init_mu_bar; X0];
 
 % Time interval
 T_min = 0;
-T_max = 50;
+T_max = 25;
 tps = linspace(T_min,T_max,1e5);
 
 params = struct();
@@ -124,9 +124,9 @@ colormap(col)
 colorbar
 
 % % Components of position.
-% figure(2); clf
-% plot(tps,x_full,tps,x_bar,tps,y_full,tps,y_bar,tps,z_full,tps,z_bar)
-% legend('x','x avg','y','y avg','z','z avg')
+figure(2); clf
+plot(tps,x_full,tps,x_bar,tps,y_full,tps,y_bar,tps,z_full,tps,z_bar)
+legend('x','x avg','y','y avg','z','z avg')
 
 
 %% Auxiliary functions 

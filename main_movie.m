@@ -52,7 +52,7 @@ init_reduced = [init_alpha_bar; init_phi_bar; init_mu_bar; X0];
 
 % Time interval
 T_min = 0;
-T_max = 25;
+T_max = 50;
 tps = linspace(T_min,T_max,3e3);
 
 params = struct();
@@ -93,10 +93,10 @@ z_bar = sol_reduced(:,6);
 %% Making the movie.
 
 % Do we want to save the movie ?
-savemov = 0;
+savemov = 1;
 
 if savemov
-    v1 = VideoWriter('movie_3D_1.mp4','MPEG-4');
+    v1 = VideoWriter('movie_3D_test_2.mp4','MPEG-4');
     v1.Quality = 50;
     open(v1);
 end
@@ -106,9 +106,9 @@ figure(1);clf;
 set(gcf, 'Position',  [100, 100, 1500, 4000])
 
 % Interval between frames.
-tick = 3;
+tick = 6;
 
-a = 1e-1*(max(x_full)-min(x_full)); %swimmer size
+a = 3e-2*(max(z_full)-min(z_full)); %swimmer size
 
 % Axis.
 xmin = min(x_full)-2*a;
@@ -169,6 +169,10 @@ for i = 1:tick:length(tps)
     end
 
     hold off
+end
+
+if savemov
+        close(v1);
 end
 
 

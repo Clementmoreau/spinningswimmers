@@ -69,7 +69,7 @@ params.V_hat = V_hat;
 
 %Prepare the figure.
 figure(2);clf
-tiledlayout(1,6)
+tiledlayout(2,3)
 graphic_params = struct();
 graphic_params.ribbonwidth = 0.7;
 graphic_params.v = [60,25];

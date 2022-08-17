@@ -84,6 +84,8 @@ tic
 W_par = 15;
 W_perp = 0.5;
 
+green = [0.1,0.9,0.1];
+
 % Quantities used in the analysis.
 w = W_par/W_perp; %spinning ratio
 lambda = sqrt(1 + w.^2);
@@ -101,10 +103,11 @@ Init_asy = [alp_init, phibar_init, mu_init];
 theta = y(:,1);phi = y(:,2);psi = y(:,3);
 % Solve the reduced ODE
 [ t_asy,y_asy ] = Solve_reduced_ODE(G,B,w,Init_asy,tps);
-alp = y_asy(:,1);phibar = y_asy(:,2);mu = y_asy(:,3);
+% We save the angles for later.
+alp_sl = y_asy(:,1);phibar_sl = y_asy(:,2);mu_sl = y_asy(:,3);
 
 nexttile;
-plot_sphere(theta,phi,alp,phibar);
+plot_sphere(theta,phi,alp_sl,phibar_sl,green);
 
 % b. Spheroidal object
 B = B_spheroidal;
@@ -119,10 +122,11 @@ Init_asy = [alp_init, phibar_init, mu_init];
 theta = y(:,1);phi = y(:,2);psi = y(:,3);
 % Solve the reduced ODE
 [ t_asy,y_asy ] = Solve_reduced_ODE(G,B,w,Init_asy,tps);
-alp = y_asy(:,1);phibar = y_asy(:,2);mu = y_asy(:,3);
+% We save the angles for later.
+alp_sp = y_asy(:,1);phibar_sp = y_asy(:,2);mu_sp = y_asy(:,3);
 
 nexttile;
-plot_sphere(theta,phi,alp,phibar);
+plot_sphere(theta,phi,alp_sp,phibar_sp,green);
 
 % c. Oblate object
 B = B_oblate;
@@ -137,17 +141,20 @@ Init_asy = [alp_init, phibar_init, mu_init];
 theta = y(:,1);phi = y(:,2);psi = y(:,3);
 % Solve the reduced ODE
 [ t_asy,y_asy ] = Solve_reduced_ODE(G,B,w,Init_asy,tps);
-alp = y_asy(:,1);phibar = y_asy(:,2);mu = y_asy(:,3);
+% We save the angles for later.
+alp_ob = y_asy(:,1);phibar_ob = y_asy(:,2);mu_ob = y_asy(:,3);
 
 nexttile;
-plot_sphere(theta,phi,alp,phibar);
+plot_sphere(theta,phi,alp_ob,phibar_ob,green);
 toc
 
 %% 3. A little larger omega (0.1). We can see that the bacterial limit starts to break down.
 tic
 
+red = [1,0,0];
+
 W_par = 15;
-W_perp = 1.5;
+W_perp = 3;
 
 % Quantities used in the analysis.
 w = W_par/W_perp; %spinning ratio
@@ -169,7 +176,10 @@ theta = y(:,1);phi = y(:,2);psi = y(:,3);
 alp = y_asy(:,1);phibar = y_asy(:,2);mu = y_asy(:,3);
 
 nexttile;
-plot_sphere(theta,phi,alp,phibar);
+
+plot_sphere(theta,phi,alp,phibar,red);
+% Plot the bacterial limit to see it doesn't work anymore.
+plot3(sin(alp_sl).*cos(phibar_sl),sin(alp_sl).*sin(phibar_sl),cos(alp_sl),'Color',green,'LineWidth',4)
 
 % b. Spheroidal object
 B = B_spheroidal;
@@ -187,7 +197,9 @@ theta = y(:,1);phi = y(:,2);psi = y(:,3);
 alp = y_asy(:,1);phibar = y_asy(:,2);mu = y_asy(:,3);
 
 nexttile;
-plot_sphere(theta,phi,alp,phibar);
+plot_sphere(theta,phi,alp,phibar,red);
+% Plot the bacterial limit to see it doesn't work anymore.
+plot3(sin(alp_sp).*cos(phibar_sp),sin(alp_sp).*sin(phibar_sp),cos(alp_sp),'Color',green,'LineWidth',4)
 
 % c. Oblate object
 B = B_oblate;
@@ -205,19 +217,21 @@ theta = y(:,1);phi = y(:,2);psi = y(:,3);
 alp = y_asy(:,1);phibar = y_asy(:,2);mu = y_asy(:,3);
 
 nexttile;
-plot_sphere(theta,phi,alp,phibar);
+plot_sphere(theta,phi,alp,phibar,red);
+% Plot the bacterial limit to see it doesn't work anymore.
+plot3(sin(alp_ob).*cos(phibar_ob),sin(alp_ob).*sin(phibar_ob),cos(alp_ob),'Color',green,'LineWidth',4)
 toc
 
 %% Post-processing and saving the figure.
 
-tl.Padding = 'compact';
+%tl.Padding = 'compact';
 tl.TileSpacing = 'none';
 %annotation('textbox',[.15 .89 .5 .1],'String','$B = 0.99$','EdgeColor','none','Interpreter','latex','FontSize',20)
 %annotation('textbox',[.45 .89 .5 .1],'String','$B = 0.5$','EdgeColor','none','Interpreter','latex','FontSize',20)
 %annotation('textbox',[.74 .89 .5 .1],'String','$B = -0.99$','EdgeColor','none','Interpreter','latex','FontSize',20)
 
 % Uncomment for saving the figure.
-% exportgraphics(gcf,'figure_rotational_bacterial_limit.png','Resolution',450)
+exportgraphics(gcf,'figure_rotational_bacterial_limit.png','Resolution',450)
 
 %% Auxiliary functions %%%%%%%%
 
@@ -277,7 +291,7 @@ options = odeset('RelTol',1e-10,'AbsTol',1e-10);
 
 end
 
-function [] = plot_sphere(theta,phi,alp,phibar)
+function [] = plot_sphere(theta,phi,alp,phibar,colour)
 
 % Plots the rotational dynamics in the orientation space (phi,theta)
 
@@ -300,7 +314,7 @@ plot3(cos(tt),sin(tt),zeros(1,length(tt)),'k','LineWidth',1)
 % Plot the full orbit.
 plot3(sin(theta).*cos(phi),sin(theta).*sin(phi),cos(theta),'b')
 % Plot the averaged orbit.
-plot3(sin(alp).*cos(phibar),sin(alp).*sin(phibar),cos(alp),'r','LineWidth',4)
+plot3(sin(alp).*cos(phibar),sin(alp).*sin(phibar),cos(alp),'Color',colour,'LineWidth',4)
 
 % Graphics setup.
 view(120,25)

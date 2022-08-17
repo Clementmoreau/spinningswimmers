@@ -67,12 +67,12 @@ params.V = [V1; V2; V3];
 params.V_hat = V_hat;
 
 %Prepare the figure.
-figure(2);clf
-tl = tiledlayout(2,2);
+F1 = figure(2);clf
+tl = tiledlayout(4,1);
 graphic_params = struct();
 graphic_params.ribbonwidth = 0.7;
 graphic_params.v = [-50,10];
-hold on
+v=[-60,10];
 
 % In this figure, we want to show the influence of V2 and the non-influence
 % of V3. 
@@ -160,7 +160,7 @@ set(gca,'FontSize',20)
 set(gca,'TickLabelInterpreter','latex')
 %zticks([0 8])
 xlabel('x','Interpreter','latex'); ylabel('z','Interpreter','latex'); zlabel('y','Interpreter','latex');
-
+view(v)
 drawnow
 
 %% then we add V3 and see it does not change anything.
@@ -240,7 +240,7 @@ set(gca,'FontSize',20)
 set(gca,'TickLabelInterpreter','latex')
 %zticks([0 8])
 xlabel('x','Interpreter','latex'); ylabel('z','Interpreter','latex'); zlabel('y','Interpreter','latex');
-
+view(v)
 
 drawnow
 %% then we add a small V2 and see it does change something.
@@ -319,6 +319,7 @@ set(gca,'FontSize',20)
 set(gca,'TickLabelInterpreter','latex')
 %zticks([0 8])
 xlabel('x','Interpreter','latex'); ylabel('z','Interpreter','latex'); zlabel('y','Interpreter','latex');
+view(v)
 drawnow
 
 %% finally we increase V2.
@@ -397,6 +398,7 @@ set(gca,'FontSize',20)
 set(gca,'TickLabelInterpreter','latex')
 %zticks([0 8])
 xlabel('x','Interpreter','latex'); ylabel('z','Interpreter','latex'); zlabel('y','Interpreter','latex');
+view(v)
 
 c=colorbar;
 c.TickLabelInterpreter='latex';
@@ -410,11 +412,13 @@ c.Label.Rotation=0;
 c.Label.Position=[0.5 3.7 0];
 c.Label.FontSize=24;
 
-tl.Padding = 'tight';
-tl.TileSpacing = 'tight';
+
 
 %%
-exportgraphics(gcf,'figure_translational_general_dynamics_3.png','Resolution',500)
+
+tl.Padding = 'tight';
+tl.TileSpacing = 'tight';
+exportgraphics(gcf,'figure_translational_general_dynamics_4.png','Resolution',500)
 % exportgraphics(gcf,'figure_translational_general dynamics_3.eps','ContentType','vector')
 
 %% Auxiliary functions 
