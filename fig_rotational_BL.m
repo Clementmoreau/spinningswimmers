@@ -82,7 +82,7 @@ toc
 
 tic
 W_par = 15;
-W_perp = 0.5;
+W_perp = -0.5;
 
 green = [0.1,0.9,0.1];
 
@@ -231,7 +231,7 @@ tl.TileSpacing = 'none';
 %annotation('textbox',[.74 .89 .5 .1],'String','$B = -0.99$','EdgeColor','none','Interpreter','latex','FontSize',20)
 
 % Uncomment for saving the figure.
-exportgraphics(gcf,'figure_rotational_bacterial_limit.png','Resolution',450)
+% exportgraphics(gcf,'figure_rotational_bacterial_limit.png','Resolution',450)
 
 %% Auxiliary functions %%%%%%%%
 

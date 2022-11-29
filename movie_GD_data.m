@@ -34,8 +34,8 @@ V_hat = (V1 + w*V2) / lambda;
 options = odeset('RelTol', 1e-10, 'AbsTol', 1e-10);
 
 % Generate specific IC for theta, phi, and psi.
-init_theta = pi/2;
-init_phi = 0.05;
+init_theta = 2*pi/5;
+init_phi = -7*pi/15;
 init_psi = pi/2;
 
 % Initial condition for swimmer position.
@@ -72,7 +72,7 @@ W_perp_var = [1e-4 2.5 5 10 10*sqrt(2) 25 50];
 
 % and different swimming velocities as well.
 V2_var = [0 0 1/2 1.5];
-V3_var = [0 2 0 0];
+V3_var = [0 0.5 0 0];
 
 % The data will be stored in cell arrays.
 data_full = cell(length(W_par_var),length(V2_var),6);
@@ -170,17 +170,19 @@ function d_state = ode_full(t,state,params)
     d_state(3) = w2 - w1*sin(psi).*cot(theta) + G*f3;
 
     % Translational dynamics.
-    d_state(4) = V1 * sin(phi)*sin(theta) + ...
+    d_state(4) = V1 * cos(theta) + ...
+                 V2 * sin(theta)*sin(psi) + ...
+                 V3 * sin(theta)*cos(psi);
+
+    d_state(5) = V1 * sin(phi)*sin(theta) + ...
                  V2 * ( cos(phi)*cos(psi) - cos(theta)*sin(phi)*sin(psi)) + ...
                  V3 * (-cos(phi)*sin(psi) - cos(theta)*sin(phi)*cos(psi));
 
-    d_state(5) = -V1 * cos(phi)*sin(theta) + ...
+    d_state(6) = -V1 * cos(phi)*sin(theta) + G*y + ...
                   V2 * ( sin(phi)*cos(psi) + cos(theta)*cos(phi)*sin(psi)) + ...
                   V3 * (-sin(phi)*sin(psi) + cos(theta)*cos(phi)*cos(psi));
 
-    d_state(6) = V1 * cos(theta) + G*y + ...
-                 V2 * sin(theta)*sin(psi) + ...
-                 V3 * sin(theta)*cos(psi);
+
 end
 
 function d_state = ode_reduced(t,state,params)
@@ -212,7 +214,7 @@ function d_state = ode_reduced(t,state,params)
     d_state(3) = G * f3;
 
     % Average translational dynamics.
-    d_state(4) = V_hat * sin(phi_bar) * sin(alpha_bar);
-    d_state(5) = -V_hat * cos(phi_bar) * sin(alpha_bar);
-    d_state(6) = V_hat * cos(alpha_bar) + G*y_bar;
+    d_state(4) = V_hat * cos(alpha_bar);
+    d_state(5) = V_hat * sin(phi_bar) * sin(alpha_bar);
+    d_state(6) = -V_hat * cos(phi_bar) * sin(alpha_bar) + G*y_bar;
 end

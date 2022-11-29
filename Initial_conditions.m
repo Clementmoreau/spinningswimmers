@@ -7,7 +7,12 @@ om = sqrt(1 + a.^2);
 
 % Calculate some quantities for mu, alpha IC 
 w_cos_alp_init = sin(Init_theta)*sin(Init_psi) + a*cos(Init_theta);
-alp_init = acos(w_cos_alp_init./om);
+if a>=0
+    alp_init = acos(w_cos_alp_init./om);
+else
+    alp_init = pi-acos(w_cos_alp_init./om);
+end
+
 
 one_over_w_tan_mu_init = cos(Init_psi)*sin(Init_theta)./(cos(Init_theta) - a*sin(Init_theta)*sin(Init_psi));
 mu_init = atan(om*one_over_w_tan_mu_init);
@@ -29,10 +34,14 @@ tan_phi_minus_phibar = sin(mu_init)./(cos(alp_init).*cos(mu_init) + a*sin(alp_in
 % X = (cos(alp_init).*cos(mu_init) + a*sin(alp_init))
 
 % phibar_init = Init_phi - atan(tan_phi_minus_phibar);
+sin(mu_init)
+cos(alp_init).*cos(mu_init) + a*sin(alp_init)
 phibar_init = Init_phi - atan2(sin(mu_init),cos(alp_init).*cos(mu_init) + a*sin(alp_init));
-phi_minus_phibar_init = atan2(sin(mu_init),cos(alp_init).*cos(mu_init) + a*sin(alp_init));
 
-abs_omega_sin_theta = sqrt((cos(alp_init).*cos(mu_init) + a*sin(alp_init)).^2 + sin(mu_init).^2);
+
+%phi_minus_phibar_init = atan2(sin(mu_init),cos(alp_init).*cos(mu_init) + a*sin(alp_init));
+
+abs_omega_sin_theta = -sqrt((cos(alp_init).*cos(mu_init) + a*sin(alp_init)).^2 + sin(mu_init).^2);
 
 % abs_omega_sin_theta*sin(Init_phi)
 % (cos(phibar_init).*sin(mu_init) + sin(phibar_init).*(cos(alp_init).*cos(mu_init) + a*sin(alp_init)))
@@ -42,10 +51,15 @@ abs_omega_sin_theta = sqrt((cos(alp_init).*cos(mu_init) + a*sin(alp_init)).^2 + 
 % Determine whether we're on the right pi branch for phibar_init
 if abs(abs_omega_sin_theta*cos(Init_phi) - ...
         (cos(phibar_init).*(cos(alp_init).*cos(mu_init) + a*sin(alp_init)) - sin(phibar_init).*sin(mu_init))) < 1e-10
+
 else
+    disp('in the loop')
     phibar_init = phibar_init + pi;
 end
-% phibar_init = phibar_init + pi;
+
+if cos(alp_init)*cos(mu_init) + a*sin(alp_init)>0
+    phibar_init = phibar_init - pi;
+end
 
 
 end

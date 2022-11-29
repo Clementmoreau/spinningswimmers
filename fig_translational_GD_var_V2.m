@@ -34,8 +34,8 @@ V_hat = (V1 + w*V2) / lambda;
 options = odeset('RelTol', 1e-10, 'AbsTol', 1e-10);
 
 % Generate specific IC for theta, phi, and psi.
-init_theta = pi/2;
-init_phi = 0.05;
+init_theta = 2*pi/5;
+init_phi = -7*pi/15;
 init_psi = pi/2;
 
 % Initial condition for swimmer position.
@@ -68,11 +68,12 @@ params.V_hat = V_hat;
 
 %Prepare the figure.
 F1 = figure(2);clf
-tl = tiledlayout(4,1);
+set(gcf, 'Position',  [1, 640, 1100, 700])
+tl = tiledlayout(2,2);
 graphic_params = struct();
 graphic_params.ribbonwidth = 0.7;
-graphic_params.v = [-50,10];
-v=[-60,10];
+graphic_params.v = [-105,40];
+v=[-105,40];
 
 % In this figure, we want to show the influence of V2 and the non-influence
 % of V3. 
@@ -86,7 +87,7 @@ W_perp_var = [1e-4 2.5 5 10 10*sqrt(2) 25 50];
 % Interestingly, Vhat goes to zero when omega becomes large.
 
 % aesthetically better to change the ribbon width for high omega
-ribbonwidth_var = [0.5 0.5 0.4 0.2 0.15 0.05 0.02];
+ribbonwidth_var = [0.5 0.5 0.5 0.3 0.2 0.1 0.05];
 V1 = 1; V2 = 0 ; V3 = 0;
 params.V = [V1; V2; V3];
 
@@ -103,7 +104,7 @@ for i = 1:length(W_par_var)
     V_hat = (V1 + w*V2) / lambda;% Effective speed.
     
     % Generate IC for the long-time variables, alpha_bar, mu_bar, and phi_bar.
-    [init_alpha_bar, init_mu_bar, init_phi_bar] = Initial_conditions(init_theta, init_phi, init_psi, W_perp, W_par);
+    [init_alpha_bar, init_mu_bar, init_phi_bar] = Initial_conditions_2(init_theta, init_phi, init_psi, W_perp, W_par);
     
     % The IC vector for the reduced simulations.
     init_reduced = [init_alpha_bar; init_phi_bar; init_mu_bar; X0];
@@ -152,8 +153,8 @@ camlight('headlight')
 camlight(-20,20)
 axis equal
 %axis([-1 4.1 -3 4 -12 3])
-col = othercolor('Bu_10');
-col = [col(end:-1:1,:);col];
+    col = colormap(gray(100));
+    col = [col(50:end,:);col(end:-1:50,:)];
 colormap(col)
 % colorbar
 set(gca,'FontSize',20)
@@ -167,8 +168,8 @@ drawnow
 % Despite the full trajectory looking very different, the average one
 % does not change. 
 
-ribbonwidth_var = [0.5 0.5 0.4 0.2 0.15 0.05 0.02];
-V1 = 1; V2 = 0 ; V3 = 2;
+ribbonwidth_var = [0.5 0.5 0.5 0.3 0.2 0.1 0.05];
+V1 = 1; V2 = 0 ; V3 = 0.5;
 params.V = [V1; V2; V3];
 
 nexttile(2);
@@ -183,7 +184,7 @@ B_eff = B * (2 - w^2) / (2 * (1 + w^2));% Effective Bretherton constant.
 V_hat = (V1 + w*V2) / lambda;% Effective speed.
 
 % Generate IC for the long-time variables, alpha_bar, mu_bar, and phi_bar.
-[init_alpha_bar, init_mu_bar, init_phi_bar] = Initial_conditions(init_theta, init_phi, init_psi, W_perp, W_par);
+[init_alpha_bar, init_mu_bar, init_phi_bar] = Initial_conditions_2(init_theta, init_phi, init_psi, W_perp, W_par);
 
 % The IC vector for the reduced simulations.
 init_reduced = [init_alpha_bar; init_phi_bar; init_mu_bar; X0];
@@ -232,8 +233,8 @@ camlight('headlight')
 camlight(-20,20)
 axis equal
 %axis([-1 4.1 -3 4 -12 3])
-col = othercolor('Bu_10');
-col = [col(end:-1:1,:);col];
+    col = colormap(gray(100));
+    col = [col(50:end,:);col(end:-1:50,:)];
 colormap(col)
 % colorbar
 set(gca,'FontSize',20)
@@ -246,7 +247,7 @@ drawnow
 %% then we add a small V2 and see it does change something.
 % Now Vhat it larger, and we see the interesting aspect of the ribbon.
 
-ribbonwidth_var = [0.5 0.5 0.4 0.4 0.4 0.4 0.3];
+ribbonwidth_var = [0.5 0.5 0.5 0.5 0.5 0.4 0.3];
 V1 = 1; V2 = 1/2 ; V3 = 0;
 params.V = [V1; V2; V3];
 
@@ -262,7 +263,7 @@ B_eff = B * (2 - w^2) / (2 * (1 + w^2));% Effective Bretherton constant.
 V_hat = (V1 + w*V2) / lambda;% Effective speed.
 
 % Generate IC for the long-time variables, alpha_bar, mu_bar, and phi_bar.
-[init_alpha_bar, init_mu_bar, init_phi_bar] = Initial_conditions(init_theta, init_phi, init_psi, W_perp, W_par);
+[init_alpha_bar, init_mu_bar, init_phi_bar] = Initial_conditions_2(init_theta, init_phi, init_psi, W_perp, W_par);
 
 % The IC vector for the reduced simulations.
 init_reduced = [init_alpha_bar; init_phi_bar; init_mu_bar; X0];
@@ -311,8 +312,8 @@ camlight('headlight')
 camlight(-20,20)
 axis equal
 %axis([-1 4.1 -3 4 -12 3])
-col = othercolor('Bu_10');
-col = [col(end:-1:1,:);col];
+    col = colormap(gray(100));
+    col = [col(50:end,:);col(end:-1:50,:)];
 colormap(col)
 % colorbar
 set(gca,'FontSize',20)
@@ -325,7 +326,7 @@ drawnow
 %% finally we increase V2.
 % Just to increase its effect, same observations as on the previous panel.
 
-ribbonwidth_var = [0.5 0.5 0.5 0.5 0.5 0.5 0.5];
+ribbonwidth_var = ones(1,7)*0.75;
 V1 = 1; V2 = 1.5 ; V3 = 0;
 params.V = [V1; V2; V3];
 
@@ -341,7 +342,7 @@ B_eff = B * (2 - w^2) / (2 * (1 + w^2));% Effective Bretherton constant.
 V_hat = (V1 + w*V2) / lambda;% Effective speed.
 
 % Generate IC for the long-time variables, alpha_bar, mu_bar, and phi_bar.
-[init_alpha_bar, init_mu_bar, init_phi_bar] = Initial_conditions(init_theta, init_phi, init_psi, W_perp, W_par);
+[init_alpha_bar, init_mu_bar, init_phi_bar] = Initial_conditions_2(init_theta, init_phi, init_psi, W_perp, W_par);
 
 % The IC vector for the reduced simulations.
 init_reduced = [init_alpha_bar; init_phi_bar; init_mu_bar; X0];
@@ -390,8 +391,8 @@ camlight('headlight')
 camlight(-20,20)
 axis equal
 %axis([-1 4.1 -3 4 -12 3])
-col = othercolor('Bu_10');
-col = [col(end:-1:1,:);col];
+    col = colormap(gray(100));
+    col = [col(50:end,:);col(end:-1:50,:)];
 colormap(col)
 % colorbar
 set(gca,'FontSize',20)
@@ -410,7 +411,7 @@ c.Label.String='$\psi$';
 c.Label.Interpreter='latex';
 c.Label.Rotation=0;
 c.Label.Position=[0.5 3.7 0];
-c.Label.FontSize=24;
+c.Label.FontSize=20;
 
 
 
@@ -418,7 +419,7 @@ c.Label.FontSize=24;
 
 tl.Padding = 'tight';
 tl.TileSpacing = 'tight';
-exportgraphics(gcf,'figure_translational_general_dynamics_4.png','Resolution',500)
+exportgraphics(gcf,'figure_translational_general_dynamics.png','Resolution',500)
 % exportgraphics(gcf,'figure_translational_general dynamics_3.eps','ContentType','vector')
 
 %% Auxiliary functions 
@@ -454,17 +455,19 @@ function d_state = ode_full(t,state,params)
     d_state(3) = w2 - w1*sin(psi).*cot(theta) + G*f3;
 
     % Translational dynamics.
-    d_state(4) = V1 * sin(phi)*sin(theta) + ...
+    d_state(4) = V1 * cos(theta) + ...
+                 V2 * sin(theta)*sin(psi) + ...
+                 V3 * sin(theta)*cos(psi);
+
+    d_state(5) = V1 * sin(phi)*sin(theta) + ...
                  V2 * ( cos(phi)*cos(psi) - cos(theta)*sin(phi)*sin(psi)) + ...
                  V3 * (-cos(phi)*sin(psi) - cos(theta)*sin(phi)*cos(psi));
 
-    d_state(5) = -V1 * cos(phi)*sin(theta) + ...
+    d_state(6) = -V1 * cos(phi)*sin(theta) + G*y + ...
                   V2 * ( sin(phi)*cos(psi) + cos(theta)*cos(phi)*sin(psi)) + ...
                   V3 * (-sin(phi)*sin(psi) + cos(theta)*cos(phi)*cos(psi));
 
-    d_state(6) = V1 * cos(theta) + G*y + ...
-                 V2 * sin(theta)*sin(psi) + ...
-                 V3 * sin(theta)*cos(psi);
+
 end
 
 function d_state = ode_reduced(t,state,params)
@@ -496,9 +499,9 @@ function d_state = ode_reduced(t,state,params)
     d_state(3) = G * f3;
 
     % Average translational dynamics.
-    d_state(4) = V_hat * sin(phi_bar) * sin(alpha_bar);
-    d_state(5) = -V_hat * cos(phi_bar) * sin(alpha_bar);
-    d_state(6) = V_hat * cos(alpha_bar) + G*y_bar;
+    d_state(4) = V_hat * cos(alpha_bar);
+    d_state(5) = V_hat * sin(phi_bar) * sin(alpha_bar);
+    d_state(6) = -V_hat * cos(phi_bar) * sin(alpha_bar) + G*y_bar;
 end
 
 function [] = plot_traj_ribbon(x_bar,y_bar,z_bar,x_full,y_full,z_full,psi_full,graphic_params)

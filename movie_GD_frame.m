@@ -11,9 +11,10 @@ load('data_movie_GD.mat');
 
 %Prepare the figure.
 f=figure(2);clf
-f.Position=[0 0 2000 1200];
-tl = tiledlayout(1,4);
-v=[50,15];
+set(gcf, 'Position',  [1, 640, 1100, 700])
+tl = tiledlayout(2,2);
+v=[-105,40];
+
 
 % Do we want to save the movie ?
 savemov = 1;
@@ -25,7 +26,7 @@ if savemov
 end
 
 % Interval between frames.
-tick = 5;
+tick = 10;
 
 colormap(othercolor('BuDRd_18'))
 
@@ -109,25 +110,25 @@ for f = 1:tick:length(tps)
             z_bar = data_bar{i,j,6};
 
             % Plot the average trajectory.
-            plot3(x_bar(1:f),y_bar(1:f),z_bar(1:f),'r','LineWidth',1.5)
+            plot3(x_bar(1:f),z_bar(1:f),y_bar(1:f),'r','LineWidth',1.5)
             hold on
 
             % plot the full trajectory
-            plot3(x_full(1:f),y_full(1:f),z_full(1:f),'k','LineWidth',0.5)
+            plot3(x_full(1:f),z_full(1:f),y_full(1:f),'k','LineWidth',0.5)
 
             % plot the swimmer
-            plot_swimmer(r,a,x_full(f),y_full(f),z_full(f),phi_full(f),theta_full(f),psi_full(f))
+            plot_swimmer(r,a,x_full(f),z_full(f),y_full(f),phi_full(f),theta_full(f),psi_full(f))
 
         end
 
         % some graphical parameters
         axis equal
         set(gcf,'color','w');
-        axis([xlim(1,j) xlim(2,j) ylim(1,j) ylim(2,j) zlim(1,j) zlim(2,j)])
+        axis([xlim(1,j) xlim(2,j) zlim(1,j) zlim(2,j) ylim(1,j) ylim(2,j)])
         view(v)
         xlabel('x','interpreter','latex')
-        ylabel('y','interpreter','latex')
-        zlabel('z','interpreter','latex')
+        ylabel('z','interpreter','latex')
+        zlabel('y','interpreter','latex')
         title(titles{j},'Interpreter','latex')
         grid on
         set(gca,'FontSize',20)

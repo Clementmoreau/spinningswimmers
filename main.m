@@ -9,17 +9,17 @@ close all;
 % G = gamma, the shear rate of the flow.
 G = 1;
 % B = Bretherton constant.
-B = 0.9;
+B = 0.5;
 
 % W_par is the intrinsic spin of the swimmer about its axis of helicoidal symmetry.
-W_par = 1;
+W_par = 10;
 % W_perp is the other direction of spin (perpendicular to the axis of helicoidal symmetry).
-W_perp = 10;
+W_perp = -100;
 
 % Swimming velocity along axis of helicoidal symmetry, e_hat_1.
 V1 = 1;
 % Swimming velocity along axis e_hat_2.
-V2 = 0;
+V2 = 2;
 % Swimming velocity along axis e_hat_3.
 V3 = 0;
 
@@ -29,21 +29,28 @@ lambda = sqrt(1 + w^2);
 % Effective Bretherton constant.
 B_eff = B * (2 - w^2) / (2 * (1 + w^2));
 % Effective speed.
-V_hat = (V1 + w*V2) / lambda;
+V_hat = abs((V1 + w*V2) / lambda);
 
 % ODE options.
 options = odeset('RelTol', 1e-11, 'AbsTol', 1e-11);
 
 % Generate specific IC for theta, phi, and psi.
-init_theta = pi/10;
-init_phi = -0.1;
+init_theta = pi/2+0.5;
+init_phi = pi/2;
 init_psi = pi/2;
 
 % Initial condition for swimmer position.
 X0 = [0;0;0];
 
 % Generate IC for the long-time variables, alpha_bar, mu_bar, and phi_bar.
-[init_alpha_bar, init_mu_bar, init_phi_bar] = Initial_conditions(init_theta, init_phi, init_psi, W_perp, W_par);
+[init_alpha_bar, init_mu_bar, init_phi_bar] = Initial_conditions_2(init_theta, init_phi, init_psi, W_perp, W_par);
+
+if W_perp<0
+    init_alpha_bar = pi-init_alpha_bar;
+    init_phi_bar = pi-init_phi_bar;
+    init_mu_bar = pi+init_mu_bar;
+end
+
 
 % The IC vector for the full simulations.
 init_full = [init_theta; init_phi; init_psi; X0];
@@ -53,8 +60,8 @@ init_reduced = [init_alpha_bar; init_phi_bar; init_mu_bar; X0];
 
 % Time interval
 T_min = 0;
-T_max = 25;
-tps = linspace(T_min,T_max,1e5);
+T_max = 1;
+tps = linspace(T_min,T_max,1e4);
 
 params = struct();
 params.G = G;
@@ -128,6 +135,53 @@ figure(2); clf
 plot(tps,x_full,tps,x_bar,tps,y_full,tps,y_bar,tps,z_full,tps,z_bar)
 legend('x','x avg','y','y avg','z','z avg')
 
+T = W_par*lambda*tps';
+a = 1/w;
+% Define useful intermediate quantities.
+w_cos_theta_asy = a*cos(alpha_bar) - sin(alpha_bar).*cos(T+mu_bar);
+w_sin_theta_sin_psi_asy = cos(alpha_bar) + a*sin(alpha_bar).*cos(T+mu_bar);
+tan_phi_minus_phibar = sin(T+mu_bar)./(cos(alpha_bar).*cos(T+mu_bar) + a*sin(alpha_bar));
+phi_minus_phibar = atan2(sin(T+mu_bar),cos(alpha_bar).*cos(T+mu_bar) + a*sin(alpha_bar));
+
+%%%% Plot omega*cos(theta) and compare to asymptotics
+figure(8);clf;
+plot(tps,lambda*a*cos(theta_full),'LineWidth',1)
+hold on
+plot(tps,w_cos_theta_asy,'--','LineWidth',1)
+% xlim([T_max-1 T_max])
+
+xlabel('$t$','Interpreter','latex','FontSize',18);
+ylabel('$\omega \cos \theta$','Interpreter','latex','FontSize',18);
+set(gcf,'Color',[1,1,1])
+set(gca,'TickLabelInterpreter','latex','FontSize',18);
+%%%
+
+%%%% Plot omega*sin(theta)*sin(psi) and compare to asymptotics
+figure(9);clf;
+plot(tps,lambda*a*sin(psi_full).*sin(theta_full),'LineWidth',1)
+hold on
+plot(tps,w_sin_theta_sin_psi_asy,'--','LineWidth',1)
+% xlim([T_max-1 T_max])
+
+xlabel('$t$','Interpreter','latex','FontSize',18);
+ylabel('$\omega \sin \theta \sin \psi$','Interpreter','latex','FontSize',18);
+set(gcf,'Color',[1,1,1])
+set(gca,'TickLabelInterpreter','latex','FontSize',18);
+%%%
+
+%%% Plot cos(phi) [to bound it] and compare to asymptotics
+figure(10);clf;
+plot(tps,cos(phi_full),'LineWidth',1)
+hold on
+plot(tps,cos(phi_minus_phibar + phi_bar),'--','LineWidth',1)
+
+ylim([-1 1])
+xlabel('$t$','Interpreter','latex','FontSize',18);
+ylabel('$\cos (\phi)$','Interpreter','latex','FontSize',18);
+set(gcf,'Color',[1,1,1])
+set(gca,'TickLabelInterpreter','latex','FontSize',18);
+%%%
+
 
 %% Auxiliary functions 
 function d_state = ode_full(t,state,params)
@@ -162,17 +216,19 @@ function d_state = ode_full(t,state,params)
     d_state(3) = w2 - w1*sin(psi).*cot(theta) + G*f3;
 
     % Translational dynamics.
-    d_state(4) = V1 * sin(phi)*sin(theta) + ...
+    d_state(4) = V1 * cos(theta) + ...
+                 V2 * sin(theta)*sin(psi) + ...
+                 V3 * sin(theta)*cos(psi);
+
+    d_state(5) = V1 * sin(phi)*sin(theta) + ...
                  V2 * ( cos(phi)*cos(psi) - cos(theta)*sin(phi)*sin(psi)) + ...
                  V3 * (-cos(phi)*sin(psi) - cos(theta)*sin(phi)*cos(psi));
 
-    d_state(5) = -V1 * cos(phi)*sin(theta) + ...
+    d_state(6) = -V1 * cos(phi)*sin(theta) + G*y + ...
                   V2 * ( sin(phi)*cos(psi) + cos(theta)*cos(phi)*sin(psi)) + ...
                   V3 * (-sin(phi)*sin(psi) + cos(theta)*cos(phi)*cos(psi));
 
-    d_state(6) = V1 * cos(theta) + G*y + ...
-                 V2 * sin(theta)*sin(psi) + ...
-                 V3 * sin(theta)*cos(psi);
+
 end
 
 function d_state = ode_reduced(t,state,params)
@@ -204,7 +260,7 @@ function d_state = ode_reduced(t,state,params)
     d_state(3) = G * f3;
 
     % Average translational dynamics.
-    d_state(4) = V_hat * sin(phi_bar) * sin(alpha_bar);
-    d_state(5) = -V_hat * cos(phi_bar) * sin(alpha_bar);
-    d_state(6) = V_hat * cos(alpha_bar) + G*y_bar;
+    d_state(4) = V_hat * cos(alpha_bar);
+    d_state(5) = V_hat * sin(phi_bar) * sin(alpha_bar);
+    d_state(6) = -V_hat * cos(phi_bar) * sin(alpha_bar) + G*y_bar;
 end

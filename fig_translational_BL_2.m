@@ -12,9 +12,9 @@ G = 1;
 B = 0.5;
 
 % W_par is the intrinsic spin of the swimmer about its axis of helicoidal symmetry.
-W_par = 10;
+W_par = 15;
 % W_perp is the other direction of spin (perpendicular to the axis of helicoidal symmetry).
-W_perp = 0.01;
+W_perp = 0.0001;
 
 % Swimming velocity along axis of helicoidal symmetry, e_hat_1.
 V1 = 1;
@@ -35,8 +35,8 @@ V_hat = (V1 + w*V2) / lambda;
 options = odeset('RelTol', 1e-10, 'AbsTol', 1e-10);
 
 % Generate specific IC for theta, phi, and psi.
-init_theta = pi/2;
-init_phi = 0.05;
+init_theta = 2*pi/5;
+init_phi = -7*pi/15;
 init_psi = pi/2;
 
 % Initial condition for swimmer position.
@@ -69,9 +69,10 @@ params.V_hat = V_hat;
 
 %Prepare the figure.
 figure(2);clf
+set(gcf, 'Position',  [100, 100, 1000, 1000])
 tiledlayout(2,3)
 graphic_params = struct();
-graphic_params.ribbonwidth = 0.7;
+graphic_params.ribbonwidth = 0.8;
 graphic_params.v = [60,25];
 
 % In this figure, we want to show that V_2 and V_3 have no influence on the
@@ -309,6 +310,8 @@ plot_traj_ribbon(x_bar,y_bar,z_bar,x_full,y_full,z_full,psi_full,graphic_params)
 %% Some graphical setup.
 
 c=colorbar;
+c.Location='manual';
+c.Position=[0.92 0.35 0.01 0.35];
 c.TickLabelInterpreter='latex';
 c.FontSize=24;
 c.TickLength=0.01;
@@ -322,8 +325,8 @@ c.Label.FontSize=24;
 
 %% Save the figure. 
 
-% exportgraphics(gcf,'figure_translational_bacterial_limit_2.png','Resolution',500)
-% exportgraphics(gcf,'figure_translational_bacterial_limit_2.eps','ContentType','vector')
+%exportgraphics(gcf,'figure_translational_bacterial_limit.png','Resolution',500)
+%exportgraphics(gcf,'figure_translational_bacterial_limit.eps','ContentType','vector')
 
 %% Auxiliary functions 
 function d_state = ode_full(t,state,params)
@@ -358,17 +361,19 @@ function d_state = ode_full(t,state,params)
     d_state(3) = w2 - w1*sin(psi).*cot(theta) + G*f3;
 
     % Translational dynamics.
-    d_state(4) = V1 * sin(phi)*sin(theta) + ...
+    d_state(4) = V1 * cos(theta) + ...
+                 V2 * sin(theta)*sin(psi) + ...
+                 V3 * sin(theta)*cos(psi);
+
+    d_state(5) = V1 * sin(phi)*sin(theta) + ...
                  V2 * ( cos(phi)*cos(psi) - cos(theta)*sin(phi)*sin(psi)) + ...
                  V3 * (-cos(phi)*sin(psi) - cos(theta)*sin(phi)*cos(psi));
 
-    d_state(5) = -V1 * cos(phi)*sin(theta) + ...
+    d_state(6) = -V1 * cos(phi)*sin(theta) + G*y + ...
                   V2 * ( sin(phi)*cos(psi) + cos(theta)*cos(phi)*sin(psi)) + ...
                   V3 * (-sin(phi)*sin(psi) + cos(theta)*cos(phi)*cos(psi));
 
-    d_state(6) = V1 * cos(theta) + G*y + ...
-                 V2 * sin(theta)*sin(psi) + ...
-                 V3 * sin(theta)*cos(psi);
+
 end
 
 function d_state = ode_reduced(t,state,params)
@@ -400,9 +405,9 @@ function d_state = ode_reduced(t,state,params)
     d_state(3) = G * f3;
 
     % Average translational dynamics.
-    d_state(4) = V_hat * sin(phi_bar) * sin(alpha_bar);
-    d_state(5) = -V_hat * cos(phi_bar) * sin(alpha_bar);
-    d_state(6) = V_hat * cos(alpha_bar) + G*y_bar;
+    d_state(4) = V_hat * cos(alpha_bar);
+    d_state(5) = V_hat * sin(phi_bar) * sin(alpha_bar);
+    d_state(6) = -V_hat * cos(phi_bar) * sin(alpha_bar) + G*y_bar;
 end
 
 function [] = plot_traj_ribbon(x_bar,y_bar,z_bar,x_full,y_full,z_full,psi_full,graphic_params)
@@ -435,9 +440,10 @@ function [] = plot_traj_ribbon(x_bar,y_bar,z_bar,x_full,y_full,z_full,psi_full,g
     camlight('headlight')
     % camlight(10,10)
     axis equal
-    axis([-1 4.1 -3 4 -12 3])
+    axis([-1 6.5 -3 3.5 -14 3])
     col = othercolor('Bu_10');
-    col = [col(end:-1:1,:);col];
+    col = colormap(gray(100));
+    col = [col(50:end,:);col(end:-1:50,:)];
     colormap(col)
     % colorbar
     set(gca,'FontSize',20)
@@ -469,8 +475,9 @@ function [] = plot_traj_ribbon_nospin(x_full,y_full,z_full,psi_full,graphic_para
     camlight('headlight')
     % camlight(10,10)
     axis equal
-    axis([-1 4.1 -3 4 -12 3])
-    col = othercolor('Bu_10');
+    axis([-1 6.5 -3 3.5 -14 3])
+    %col = othercolor('Bu_10');
+    col = colormap(gray(100));
     col = [col(end:-1:1,:);col];
     colormap(col)
     % colorbar

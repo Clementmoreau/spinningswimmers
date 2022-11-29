@@ -330,17 +330,19 @@ function d_state = ode_full(t,state,params)
     d_state(3) = w2 - w1*sin(psi).*cot(theta) + G*f3;
 
     % Translational dynamics.
-    d_state(4) = V1 * sin(phi)*sin(theta) + ...
+    d_state(4) = V1 * cos(theta) + ...
+                 V2 * sin(theta)*sin(psi) + ...
+                 V3 * sin(theta)*cos(psi);
+
+    d_state(5) = V1 * sin(phi)*sin(theta) + ...
                  V2 * ( cos(phi)*cos(psi) - cos(theta)*sin(phi)*sin(psi)) + ...
                  V3 * (-cos(phi)*sin(psi) - cos(theta)*sin(phi)*cos(psi));
 
-    d_state(5) = -V1 * cos(phi)*sin(theta) + ...
+    d_state(6) = -V1 * cos(phi)*sin(theta) + G*y + ...
                   V2 * ( sin(phi)*cos(psi) + cos(theta)*cos(phi)*sin(psi)) + ...
                   V3 * (-sin(phi)*sin(psi) + cos(theta)*cos(phi)*cos(psi));
 
-    d_state(6) = V1 * cos(theta) + G*y + ...
-                 V2 * sin(theta)*sin(psi) + ...
-                 V3 * sin(theta)*cos(psi);
+
 end
 
 function d_state = ode_reduced(t,state,params)
@@ -372,9 +374,9 @@ function d_state = ode_reduced(t,state,params)
     d_state(3) = G * f3;
 
     % Average translational dynamics.
-    d_state(4) = V_hat * sin(phi_bar) * sin(alpha_bar);
-    d_state(5) = -V_hat * cos(phi_bar) * sin(alpha_bar);
-    d_state(6) = V_hat * cos(alpha_bar) + G*y_bar;
+    d_state(4) = V_hat * cos(alpha_bar);
+    d_state(5) = V_hat * sin(phi_bar) * sin(alpha_bar);
+    d_state(6) = -V_hat * cos(phi_bar) * sin(alpha_bar) + G*y_bar;
 end
 
 function [] = plot_traj_ribbon(x_bar,y_bar,z_bar,x_full,y_full,z_full,psi_full,graphic_params)
